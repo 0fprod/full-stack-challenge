@@ -7,10 +7,12 @@ export class UsersService {
     {
       name: 'john',
       role: 'admin',
+      password: 'john',
     },
     {
       name: 'chris',
       role: 'user',
+      password: 'chris',
     },
   ];
 
