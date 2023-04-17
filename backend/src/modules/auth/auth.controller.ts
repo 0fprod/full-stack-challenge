@@ -1,9 +1,9 @@
 import { Body, Controller, Get, HttpCode, HttpStatus, Post, UseGuards, Request } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { AuthGuard } from './auth.guard';
-import { Roles } from './roles.decorator';
-import { Role } from './role.enum';
-import { RoleGuard } from './role.guard';
+import { AuthGuard } from '../common/guards/auth.guard';
+import { Roles } from '../common/decoratos/roles.decorator';
+import { Role } from '../common/decoratos/role.enum';
+import { RoleGuard } from '../common/guards/role.guard';
 
 @Controller('auth')
 export class AuthController {
