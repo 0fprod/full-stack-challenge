@@ -1,18 +1,18 @@
 import { Injectable } from '@nestjs/common';
-import { User } from 'src/database/entities/user.entity';
+import { User } from '../../database/schemas/user.shema';
 
 @Injectable()
 export class UsersService {
   private readonly users: Array<User> = [
     {
-      name: 'john',
+      name: 'Bored Mike',
       role: 'admin',
-      password: 'john',
+      password: 'mike',
     },
     {
-      name: 'chris',
+      name: 'Everyone',
       role: 'user',
-      password: 'chris',
+      password: 'public',
     },
   ];
 
