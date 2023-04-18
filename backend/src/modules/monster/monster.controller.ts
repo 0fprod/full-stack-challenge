@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Post } from '@nestjs/common';
 import { MonsterService } from './monster.service';
-import { Monster } from 'src/database/schemas/monster.schema';
+import { Monster } from '../../database/schemas/monster.schema';
 import { Roles } from '../common/decoratos/roles.decorator';
 import { Role } from '../common/decoratos/role.enum';
 
