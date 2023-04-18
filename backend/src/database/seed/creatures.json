@@ -1,0 +1,122 @@
+[
+  {
+    "name": { "first": "Wise", "last": "Dragon", "title": "Mr" },
+    "gender": "male",
+    "description": "A cunning dragon known for his wisdom and strategic thinking.",
+    "nationality": ["CN"],
+    "imageUrl": "",
+    "goldBalance": 0,
+    "speed": 90,
+    "health": 120,
+    "secretNotes": "It was in the 3D Art office, under the desk",
+    "monsterPassword": "songoffireandcode"
+  },
+  {
+    "name": { "first": "Jade", "last": "Dragon", "title": "Mr" },
+    "gender": "male",
+    "description": "A rare dragon with beautiful jade scales, rumored to bring good luck and fortune.",
+    "nationality": ["JP"],
+    "imageUrl": "",
+    "goldBalance": 300,
+    "speed": 80,
+    "health": 110,
+    "secretNotes": "Secret location is in the cave of the forbidden mountain",
+    "monsterPassword": "jade2468"
+  },
+  {
+    "name": { "first": "Ruby", "last": "Dragon", "title": "Mr" },
+    "gender": "male",
+    "description": "A fiery dragon with ruby-red scales and a hoard of treasure beyond your wildest dreams.",
+    "nationality": ["US"],
+    "imageUrl": "",
+    "goldBalance": 50,
+    "speed": 95,
+    "health": 100,
+    "secretNotes": "",
+    "monsterPassword": "ruby1357"
+  },
+  {
+    "name": { "first": "Aria", "last": "Dragon", "title": "Mr" },
+    "gender": "female",
+    "description": "A graceful dragon with a voice that can shake the mountains and calm the seas.",
+    "nationality": ["GB"],
+    "imageUrl": "",
+    "goldBalance": 100,
+    "speed": 75,
+    "health": 95,
+    "secretNotes": "",
+    "monsterPassword": "aria369"
+  },
+  {
+    "name": { "first": "Echo", "last": "Dragon", "title": "Mr" },
+    "gender": "other",
+    "description": "A mysterious dragon with an otherworldly aura that can manipulate sound and echoes.",
+    "nationality": ["CA"],
+    "imageUrl": "",
+    "goldBalance": 500,
+    "speed": 100,
+    "health": 115,
+    "secretNotes": "Located at the top of the mountain of the rising sun",
+    "monsterPassword": "echo2468"
+  },
+  {
+    "name": { "first": "Luna", "last": "Flame", "title": "Mrs" },
+    "gender": "female",
+    "description": "A dragon with shimmering scales that glow like the moon, breathing flames that can turn night into day.",
+    "nationality": ["ES"],
+    "imageUrl": "",
+    "goldBalance": 200,
+    "speed": 85,
+    "health": 90,
+    "secretNotes": "",
+    "monsterPassword": "luna1234"
+  },
+  {
+    "name": { "first": "Nova", "last": "Icy", "title": "Mrs" },
+    "gender": "female",
+    "description": "A dragon with icy blue scales that can freeze anything in its path, but with a warm heart for those it trusts.",
+    "nationality": ["FR"],
+    "imageUrl": "",
+    "goldBalance": 0,
+    "speed": 55,
+    "health": 100,
+    "secretNotes": "",
+    "monsterPassword": "nova4567"
+  },
+  {
+    "name": { "first": "Lei", "last": "Dragon", "title": "Ms" },
+    "gender": "female",
+    "description": "A dragon with stormy gray scales and the ability to control lightning, revered in both China and Brazil for her power over the skies.",
+    "nationality": ["CN", "BR"],
+    "imageUrl": "",
+    "goldBalance": 150,
+    "speed": 70,
+    "health": 105,
+    "secretNotes": "Can be found in the eye of the storm",
+    "monsterPassword": "lei7890"
+  },
+  {
+    "name": { "first": "Erik", "last": "Dragon", "title": "Mr" },
+    "gender": "male",
+    "description": "A dragon with shimmering green scales and the power to control nature, revered by the indigenous peoples of both Sweden and Peru.",
+    "nationality": ["SE", "PE"],
+    "imageUrl": "",
+    "goldBalance": 250,
+    "speed": 65,
+    "health": 110,
+    "secretNotes": "Can be found in the heart of the Amazon rainforest",
+    "monsterPassword": "erik2468"
+  },
+  {
+    "name": { "first": "Niamh", "last": "Dragon", "title": "Ms" },
+    "gender": "female",
+    "description": "A dragon with iridescent purple scales and the ability to manipulate dreams, celebrated in both Ireland and India for her magical abilities.",
+    "nationality": ["IE", "IN"],
+    "imageUrl": "",
+    "goldBalance": 100,
+    "speed": 60,
+    "health": 95,
+    "secretNotes": "Can be found in the misty hills of Connemara",
+    "monsterPassword": "niamh1234"
+  }
+]
