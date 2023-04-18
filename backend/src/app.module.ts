@@ -6,6 +6,7 @@ import { UsersModule } from './modules/users/users.module';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './modules/common/guards/auth.guard';
 import { RoleGuard } from './modules/common/guards/role.guard';
+import { MonsterModule } from './modules/monster/monster.module';
 
 @Module({
   imports: [
@@ -13,7 +14,9 @@ import { RoleGuard } from './modules/common/guards/role.guard';
       isGlobal: true,
     }),
     AuthModule,
-    UsersModule /*MongooseModule.forRoot(process.env.MONGO_URI)*/,
+    UsersModule,
+    MonsterModule,
+    MongooseModule.forRoot(process.env.MONGO_URI),
   ],
   controllers: [],
   providers: [
