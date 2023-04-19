@@ -1,31 +1,41 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Monster } from '../../database/schemas/monster.schema';
+import { MonsterEntity } from './entity/monster.entity';
+import { MonsterDocument } from './schema/monster.schema';
 
 @Injectable()
 export class MonsterService {
-  constructor(@InjectModel(Monster.name) private monsterModel: Model<Monster>) {}
+  constructor(@InjectModel(MonsterEntity.name) private monsterModel: Model<MonsterEntity>) {}
 
-  async create(monster: Monster): Promise<Monster> {
-    const createdMonster = await this.monsterModel.create(monster);
-    return createdMonster;
+  async create(createMonsterDto: MonsterEntity): Promise<MonsterEntity> {
+    const createdMonster: MonsterDocument = await new this.monsterModel(createMonsterDto).save();
+    return this.mapMonsterDocumentToMonsterEntity(createdMonster);
   }
 
-  async findAll(): Promise<Monster[]> {
+  async findAll(): Promise<MonsterEntity[]> {
     return await this.monsterModel.find().exec();
   }
 
-  async findOne(id: string): Promise<Monster> {
+  async findOne(id: string): Promise<MonsterEntity> {
     return await this.monsterModel.findById(id).exec();
   }
 
-  async update(id: string, monster: Monster): Promise<Monster> {
+  async update(id: string, monster: MonsterEntity): Promise<MonsterEntity> {
     await this.monsterModel.updateOne({ _id: id }, monster).exec();
     return this.findOne(id);
   }
 
-  async remove(id: string): Promise<Monster> {
+  async remove(id: string): Promise<MonsterEntity> {
     return await this.monsterModel.findByIdAndRemove(id);
+  }
+
+  private mapMonsterDocumentToMonsterEntity(monster: MonsterDocument): MonsterEntity {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { _id, __v, ...rest } = monster.toObject<any>();
+    return {
+      id: _id.toString(),
+      ...rest,
+    };
   }
 }
