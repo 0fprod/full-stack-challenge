@@ -15,4 +15,17 @@ export class MonsterService {
   async findAll(): Promise<Monster[]> {
     return await this.monsterModel.find().exec();
   }
+
+  async findOne(id: string): Promise<Monster> {
+    return await this.monsterModel.findById(id).exec();
+  }
+
+  async update(id: string, monster: Monster): Promise<Monster> {
+    await this.monsterModel.updateOne({ _id: id }, monster).exec();
+    return this.findOne(id);
+  }
+
+  async remove(id: string): Promise<Monster> {
+    return await this.monsterModel.findByIdAndRemove(id);
+  }
 }
