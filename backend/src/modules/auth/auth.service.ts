@@ -22,7 +22,10 @@ export class AuthService {
     const payload = { username: user.name, role: user.role, sub: user.name };
 
     return {
-      access_token: this.jwtService.sign(payload, { secret: this.configService.get('JWT_SECRET'), expiresIn: '60s' }),
+      access_token: this.jwtService.sign(payload, {
+        secret: this.configService.get('JWT_SECRET'),
+        expiresIn: this.configService.get('TOKEN_EXPIRES_IN'),
+      }),
     };
   }
 }
