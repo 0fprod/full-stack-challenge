@@ -11,8 +11,8 @@ export class MonsterController {
 
   @Roles(Role.Admin, Role.User)
   @Get()
-  findAll(): Promise<MonsterEntity[]> {
-    return this.monsterService.findAll();
+  findAll(@Query('skip') skip: number, @Query('limit') limit: number): Promise<MonsterEntity[]> {
+    return this.monsterService.findAll(skip, limit);
   }
 
   @Roles(Role.Admin)

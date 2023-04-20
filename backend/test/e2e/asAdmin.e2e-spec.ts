@@ -91,14 +91,66 @@ describe('E2E: Requests', () => {
 
     it('/monster [GET] should retrieve a list of monster', async () => {
       await saveMonster({
-        title: 'Mr',
-        firstName: 'Test',
-        nationality: ['ES'],
+        name: {
+          first: 'test',
+          title: 'Mr',
+          last: 'irrelevant',
+        },
       });
 
       const response = await request(app.getHttpServer()).get('/monster').set(everyoneToken);
       expect(response.status).toBe(200);
       expect(response.body).toHaveLength(1);
+    });
+
+    it('/monster [GET] should retrieve a paginated list of monster', async () => {
+      await saveManyMonsters([
+        {
+          name: {
+            title: 'Mr',
+            first: 'aName',
+            last: 'irrelevant',
+          },
+        },
+        {
+          name: {
+            title: 'Mr',
+            first: 'anotherName',
+            last: 'irrelevant',
+          },
+        },
+        {
+          name: {
+            title: 'Mr',
+            first: 'aDifferentName',
+            last: 'irrelevant',
+          },
+        },
+        {
+          name: {
+            title: 'Mr',
+            first: 'aRandomName',
+            last: 'irrelevant',
+          },
+        },
+      ]);
+
+      const firstTwo = await request(app.getHttpServer()).get('/monster').set(everyoneToken).query({
+        skip: 0,
+        limit: 2,
+      });
+
+      const lastTwo = await request(app.getHttpServer()).get('/monster').set(everyoneToken).query({
+        skip: 2,
+        limit: 2,
+      });
+
+      expect(firstTwo.status).toBe(200);
+      expect(lastTwo.status).toBe(200);
+      expect(firstTwo.body).toHaveLength(2);
+      expect(lastTwo.body).toHaveLength(2);
+      expect(firstTwo.body[0].name.first).toEqual('aName');
+      expect(lastTwo.body[0].name.first).toEqual('aDifferentName');
     });
 
     it('/monster [PATCH] should not modify invalid monsters', async () => {
@@ -134,12 +186,14 @@ describe('E2E: Requests', () => {
     });
 
     it('/monster [PATCH] should modify a monster', async () => {
-      const validMonsterDto = {
-        title: 'Mr',
-        firstName: 'Test',
+      const { id } = await saveMonster({
+        name: {
+          first: 'Test',
+          title: 'Mr',
+          last: null,
+        },
         nationality: ['ES'],
-      };
-      const { id } = await saveMonster(validMonsterDto);
+      });
       const updateMonsterDto = {
         id,
         title: 'Mrs',
@@ -181,9 +235,13 @@ describe('E2E: Requests', () => {
       expect(response.body).toEqual({ error: 'Forbidden', message: 'Forbidden resource', statusCode: 403 });
     });
 
-    async function saveMonster(monster: any): Promise<MonsterEntity> {
-      const response = await request(app.getHttpServer()).post('/monster').set(everyoneToken).send(monster);
-      return response.body;
+    async function saveMonster(monster: Partial<MonsterEntity>): Promise<MonsterEntity> {
+      return await new dbModel(monster).save();
+    }
+
+    async function saveManyMonsters(monsters: Array<Partial<MonsterEntity>>): Promise<number> {
+      await dbModel.insertMany(monsters);
+      return monsters.length;
     }
   });
 });

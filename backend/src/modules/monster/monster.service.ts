@@ -13,8 +13,8 @@ export class MonsterService {
     return this.mapMonsterDocumentToMonsterEntity(createdMonster);
   }
 
-  async findAll(): Promise<MonsterEntity[]> {
-    return await this.monsterModel.find().exec();
+  async findAll(skip?: number, limit?: number): Promise<MonsterEntity[]> {
+    return await this.monsterModel.find({}, {}, { skip, limit });
   }
 
   async findOne(id: string): Promise<MonsterEntity> {
