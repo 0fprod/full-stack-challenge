@@ -53,7 +53,7 @@ describe('E2E: Requests', () => {
     });
 
     it('/monsters [PUT] should be forbidden', async () => {
-      const response = await request(app.getHttpServer()).put('/monster').set(everyoneToken).send({ name: 'Test' });
+      const response = await request(app.getHttpServer()).patch('/monster').set(everyoneToken).send({ name: 'Test' });
 
       expect(response.status).toBe(403);
       expect(response.body).toEqual({ error: 'Forbidden', message: 'Forbidden resource', statusCode: 403 });

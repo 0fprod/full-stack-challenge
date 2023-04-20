@@ -1,3 +1,4 @@
+import { UpdateMonsterDTO } from '../dto';
 import { CreateMonsterDto } from '../dto/CreateMonsterDto';
 
 export class MonsterName {
@@ -49,7 +50,7 @@ export class MonsterEntity {
     this.monsterPassword = monsterPassword;
   }
 
-  public static fromDTO(dto: CreateMonsterDto): MonsterEntity {
+  public static fromCreateMonsterDTO(dto: CreateMonsterDto): MonsterEntity {
     const name = new MonsterName(dto.title, dto.firstName, dto.lastName);
     const nationality = [...dto.nationality];
     const gender = dto.gender;
@@ -73,5 +74,34 @@ export class MonsterEntity {
       secretNotes,
       monsterPassword,
     );
+  }
+
+  public static fromUpdateMonsterDTO(dto: UpdateMonsterDTO): Partial<MonsterEntity> {
+    const name = new MonsterName(dto.title, dto.firstName, dto.lastName);
+    const nationality = dto.nationality;
+    const gender = dto.gender;
+    const description = dto.description;
+    const imageUrl = dto.imageUrl;
+    const goldBalance = dto.goldBalance;
+    const speed = dto.speed;
+    const health = dto.health;
+    const secretNotes = dto.secretNotes;
+    const monsterPassword = dto.monsterPassword;
+
+    const monsterEntitiy: Partial<MonsterEntity> = {
+      id: dto.id,
+      name,
+      nationality,
+      gender,
+      description,
+      imageUrl,
+      goldBalance,
+      speed,
+      health,
+      secretNotes,
+      monsterPassword,
+    };
+
+    return JSON.parse(JSON.stringify(monsterEntitiy));
   }
 }

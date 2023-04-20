@@ -86,11 +86,46 @@ describe('E2E: Requests', () => {
       });
     });
 
-    it.skip('/monsters [PUT] should be forbidden', async () => {
-      const response = await request(app.getHttpServer()).put('/monster').set(everyoneToken).send({ name: 'Test' });
+    it('/monsters [PATCH] should not modify invalid monsters', async () => {
+      const updateMonsterDtoWithoutId = {
+        title: 'Mr',
+      };
+      const response = await request(app.getHttpServer())
+        .patch('/monster')
+        .set(everyoneToken)
+        .send(updateMonsterDtoWithoutId);
 
-      expect(response.status).toBe(403);
-      expect(response.body).toEqual({ error: 'Forbidden', message: 'Forbidden resource', statusCode: 403 });
+      expect(response.status).toBe(400);
+      expect(response.body).toEqual({
+        error: 'Bad Request',
+        message: ['id should not be empty', 'id must be a string'],
+        statusCode: 400,
+      });
+    });
+
+    it('/monsters [PATCH] should modify a monster', async () => {
+      const validMonsterDto = {
+        title: 'Mr',
+        firstName: 'Test',
+        nationality: ['ES'],
+      };
+      const createMonsterResponse = await request(app.getHttpServer())
+        .post('/monster')
+        .set(everyoneToken)
+        .send(validMonsterDto);
+
+      const updateMonsterDto = {
+        id: createMonsterResponse.body.id,
+        title: 'Mrs',
+      };
+      const response = await request(app.getHttpServer()).patch('/monster').set(everyoneToken).send(updateMonsterDto);
+
+      expect(response.status).toBe(200);
+      expect(response.body).toEqual({
+        id: updateMonsterDto.id,
+        name: { title: 'Mrs', first: 'Test' },
+        nationality: ['ES'],
+      });
     });
 
     it.skip('/monsters [DELETE] should be forbidden', async () => {
