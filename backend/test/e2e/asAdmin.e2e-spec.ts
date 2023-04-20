@@ -1,13 +1,16 @@
-import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
-import * as request from 'supertest';
-import { AppModule } from '../../src/app.module';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import { MongooseModule } from '@nestjs/mongoose';
+import { Test, TestingModule } from '@nestjs/testing';
+import { MongooseModule, getModelToken } from '@nestjs/mongoose';
+import { AppModule } from '../../src/app.module';
+import * as request from 'supertest';
+import { Model } from 'mongoose';
+import { MonsterEntity } from '../../src/modules/monster/entity/monster.entity';
 
 describe('E2E: Requests', () => {
   let app: INestApplication;
   let mongoServer: MongoMemoryServer;
+  let dbModel: Model<MonsterEntity>;
 
   beforeAll(async () => {
     mongoServer = await MongoMemoryServer.create();
@@ -21,6 +24,8 @@ describe('E2E: Requests', () => {
       .compile();
 
     app = moduleFixture.createNestApplication();
+    dbModel = moduleFixture.get<Model<MonsterEntity>>(getModelToken(MonsterEntity.name));
+
     app.useGlobalPipes(
       new ValidationPipe({
         transform: true,
@@ -46,13 +51,17 @@ describe('E2E: Requests', () => {
       everyoneToken['Authorization'] = `Bearer ${response.body.access_token}`;
     });
 
-    it('/monsters [GET] should retrieve a list of monster', async () => {
+    afterEach(async () => {
+      await dbModel.deleteMany({});
+    });
+
+    it('/monster [GET] should retrieve a list of monster', async () => {
       const response = await request(app.getHttpServer()).get('/monster').set(everyoneToken);
       expect(response.status).toBe(200);
       expect(response.body).toEqual([]);
     });
 
-    it('/monsters [POST] should not create invalid monsters', async () => {
+    it('/monster [POST] should not create invalid monsters', async () => {
       const invalidMonsterDto = {
         title: 'Mr',
         firstName: 'Test',
@@ -69,7 +78,7 @@ describe('E2E: Requests', () => {
       });
     });
 
-    it('/monsters [POST] should create a valid monster', async () => {
+    it('/monster [POST] should create a valid monster', async () => {
       const validMonsterDto = {
         title: 'Mr',
         firstName: 'Test',
@@ -86,7 +95,7 @@ describe('E2E: Requests', () => {
       });
     });
 
-    it('/monsters [PATCH] should not modify invalid monsters', async () => {
+    it('/monster [PATCH] should not modify invalid monsters', async () => {
       const updateMonsterDtoWithoutId = {
         title: 'Mr',
       };
@@ -103,7 +112,7 @@ describe('E2E: Requests', () => {
       });
     });
 
-    it('/monsters [PATCH] cant modify an unexisting monster', async () => {
+    it('/monster [PATCH] cant modify an unexisting monster', async () => {
       const updateMonsterDto = {
         id: '64417380f8799e1a9b4fb823',
         title: 'Mrs',
@@ -118,7 +127,7 @@ describe('E2E: Requests', () => {
       });
     });
 
-    it.only('/monsters [PATCH] should modify a monster', async () => {
+    it('/monster [PATCH] should modify a monster', async () => {
       const validMonsterDto = {
         title: 'Mr',
         firstName: 'Test',
@@ -128,7 +137,6 @@ describe('E2E: Requests', () => {
         .post('/monster')
         .set(everyoneToken)
         .send(validMonsterDto);
-      console.log('🚀 ~ createMonsterResponse:', createMonsterResponse.body.id);
 
       const updateMonsterDto = {
         id: createMonsterResponse.body.id,
@@ -139,16 +147,35 @@ describe('E2E: Requests', () => {
       expect(response.status).toBe(200);
       expect(response.body).toEqual({
         id: updateMonsterDto.id,
-        name: { title: 'Mrs', first: 'Test' },
+        name: { title: 'Mrs', first: 'Test', last: null },
         nationality: ['ES'],
       });
     });
 
-    it.skip('/monsters [DELETE] should be forbidden', async () => {
-      const response = await request(app.getHttpServer()).delete('/monster').set(everyoneToken).send({ name: 'Test' });
+    it('/monster [DELETE] should delete a monster', async () => {
+      const validMonsterDto = {
+        title: 'Mr',
+        firstName: 'Test',
+        nationality: ['ES'],
+      };
 
-      expect(response.status).toBe(403);
-      expect(response.body).toEqual({ error: 'Forbidden', message: 'Forbidden resource', statusCode: 403 });
+      const createMonsterResponse = await request(app.getHttpServer())
+        .post('/monster')
+        .set(everyoneToken)
+        .send(validMonsterDto);
+
+      const monsterIdToDelete = createMonsterResponse.body.id;
+
+      const response = await request(app.getHttpServer())
+        .delete('/monster')
+        .set(everyoneToken)
+        .query({ id: monsterIdToDelete });
+
+      expect(response.status).toBe(200);
+
+      const deltedResponse = await request(app.getHttpServer()).get('/monster').set(everyoneToken);
+      expect(deltedResponse.status).toBe(200);
+      expect(deltedResponse.body).toEqual([]);
     });
 
     it.skip('/update-gold [POST] should be forbidden', async () => {

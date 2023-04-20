@@ -41,7 +41,11 @@ export class MonsterService {
   }
 
   async remove(id: string): Promise<MonsterEntity> {
-    return await this.monsterModel.findByIdAndRemove(id);
+    return await this.monsterModel.findByIdAndRemove(id, {});
+  }
+
+  async clearCollection(): Promise<void> {
+    await this.monsterModel.deleteMany({});
   }
 
   private mapMonsterDocumentToMonsterEntity(monster: MonsterDocument): MonsterEntity {
