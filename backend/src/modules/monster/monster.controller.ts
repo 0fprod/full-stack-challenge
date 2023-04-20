@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, NotFoundException, Patch, Post } from '@nestjs/common';
 import { MonsterService } from './monster.service';
 import { MonsterEntity } from './entity/monster.entity';
 import { Roles } from '../common/decoratos/roles.decorator';
@@ -19,15 +19,21 @@ export class MonsterController {
   @Post()
   create(@Body() createMonsterDto: CreateMonsterDto): Promise<MonsterEntity> {
     const monster = MonsterEntity.fromCreateMonsterDTO(createMonsterDto);
+
     return this.monsterService.create(monster);
   }
 
   @Roles(Role.Admin)
   @Patch()
-  update(@Body() updateMonsterDto: UpdateMonsterDTO): Promise<MonsterEntity> {
+  async update(@Body() updateMonsterDto: UpdateMonsterDTO): Promise<MonsterEntity> {
     const monster = MonsterEntity.fromUpdateMonsterDTO(updateMonsterDto);
+    const updatedMonster = await this.monsterService.update(monster);
 
-    return this.monsterService.update(monster);
+    if (updatedMonster === null) {
+      throw new NotFoundException('Monster doesnt exist, review the monster id.');
+    }
+
+    return updatedMonster;
   }
 
   @Roles(Role.Admin)

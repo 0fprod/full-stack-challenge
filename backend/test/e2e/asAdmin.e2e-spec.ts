@@ -103,7 +103,22 @@ describe('E2E: Requests', () => {
       });
     });
 
-    it('/monsters [PATCH] should modify a monster', async () => {
+    it('/monsters [PATCH] cant modify an unexisting monster', async () => {
+      const updateMonsterDto = {
+        id: '64417380f8799e1a9b4fb823',
+        title: 'Mrs',
+      };
+      const response = await request(app.getHttpServer()).patch('/monster').set(everyoneToken).send(updateMonsterDto);
+
+      expect(response.status).toBe(404);
+      expect(response.body).toEqual({
+        error: 'Not Found',
+        message: 'Monster doesnt exist, review the monster id.',
+        statusCode: 404,
+      });
+    });
+
+    it.only('/monsters [PATCH] should modify a monster', async () => {
       const validMonsterDto = {
         title: 'Mr',
         firstName: 'Test',
@@ -113,6 +128,7 @@ describe('E2E: Requests', () => {
         .post('/monster')
         .set(everyoneToken)
         .send(validMonsterDto);
+      console.log('🚀 ~ createMonsterResponse:', createMonsterResponse.body.id);
 
       const updateMonsterDto = {
         id: createMonsterResponse.body.id,

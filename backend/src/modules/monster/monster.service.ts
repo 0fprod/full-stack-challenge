@@ -2,14 +2,14 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { MonsterEntity } from './entity/monster.entity';
-import { Monster, MonsterDocument } from './schema/monster.schema';
+import { MonsterDocument } from './schema/monster.schema';
 
 @Injectable()
 export class MonsterService {
   constructor(@InjectModel(MonsterEntity.name) private monsterModel: Model<MonsterEntity>) {}
 
-  async create(createMonsterDto: MonsterEntity): Promise<MonsterEntity> {
-    const createdMonster: MonsterDocument = await new this.monsterModel(createMonsterDto).save();
+  async create(monster: MonsterEntity): Promise<MonsterEntity> {
+    const createdMonster: MonsterDocument = await new this.monsterModel(monster).save();
     return this.mapMonsterDocumentToMonsterEntity(createdMonster);
   }
 
@@ -26,10 +26,13 @@ export class MonsterService {
     const currentMonster: MonsterDocument = await this.monsterModel.findById(id).exec();
 
     if (currentMonster === null) {
-      throw new Error('Monster not found');
+      return null;
     }
 
-    const updatedMonster = this.merge(this.mapMonsterDocumentToMonsterEntity(currentMonster), monster);
+    const updatedMonster = this.updateMonsterAttribuesWithPartialMonster(
+      this.mapMonsterDocumentToMonsterEntity(currentMonster),
+      monster,
+    );
     const result: MonsterDocument = await this.monsterModel
       .findOneAndUpdate({ _id: id }, updatedMonster, { new: true })
       .exec();
@@ -50,29 +53,25 @@ export class MonsterService {
     };
   }
 
-  private merge(monster: MonsterEntity, updateMonsterDto: Partial<MonsterEntity>): MonsterEntity {
-    function mergeObjects(obj1: any, obj2: any): any {
-      const mergedObj = { ...obj1 };
+  private updateMonsterAttribuesWithPartialMonster(
+    monsterToUpdate: MonsterEntity,
+    partialMonster: Partial<MonsterEntity>,
+  ): MonsterEntity {
+    function overrideTargetWithSourcePropertiesRecursively(target: any, source: any): any {
+      const mergedObject = { ...target };
 
-      Object.entries(obj2).forEach(([key, value]) => {
+      Object.entries(source).forEach(([key, value]) => {
         if (typeof value === 'object' && value !== null) {
-          mergedObj[key] = mergeObjects(obj1[key], value);
+          mergedObject[key] = overrideTargetWithSourcePropertiesRecursively(target[key], value);
         } else {
-          mergedObj[key] = value;
+          mergedObject[key] = value;
         }
       });
 
-      return mergedObj;
-    }
-    function replacer(key, value) {
-      // Filtering out properties
-      if (value === null) {
-        return undefined;
-      }
-      return value;
+      return mergedObject;
     }
 
-    const mergedMonster = mergeObjects(monster, updateMonsterDto);
-    return JSON.parse(JSON.stringify(mergedMonster, replacer));
+    const mergedMonster = overrideTargetWithSourcePropertiesRecursively(monsterToUpdate, partialMonster);
+    return mergedMonster;
   }
 }
