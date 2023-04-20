@@ -44,10 +44,6 @@ export class MonsterService {
     return await this.monsterModel.findByIdAndRemove(id, {});
   }
 
-  async clearCollection(): Promise<void> {
-    await this.monsterModel.deleteMany({});
-  }
-
   private mapMonsterDocumentToMonsterEntity(monster: MonsterDocument): MonsterEntity {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { _id, __v, ...rest } = monster.toObject<any>();
