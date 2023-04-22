@@ -2,7 +2,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { MonsterService } from './monster.service';
 import { getModelToken } from '@nestjs/mongoose';
 import { Monster } from './schema/monster.schema';
-import { Model } from 'mongoose';
+import { MonsterRepository } from './monster.repository';
+import { MonsterEntity } from './entity/monster.entity';
 
 const mockMonster: Monster = {
   name: { first: 'Niamh', last: 'Dragon', title: 'Ms' },
@@ -46,14 +47,21 @@ const monsterArray: Array<Monster> = [
 
 describe('MonsterService', () => {
   let service: MonsterService;
-  let model: Model<Monster>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
+        // MonsterRepository,
+        {
+          provide: MonsterRepository,
+          useValue: {
+            findAll: jest.fn().mockReturnValue(monsterArray),
+            create: jest.fn().mockReturnValue(mockMonster),
+          },
+        },
         MonsterService,
         {
-          provide: getModelToken(Monster.name),
+          provide: getModelToken(MonsterEntity.name),
           useValue: {
             find: jest.fn(),
             create: jest.fn(),
@@ -64,7 +72,6 @@ describe('MonsterService', () => {
     }).compile();
 
     service = module.get<MonsterService>(MonsterService);
-    model = module.get<Model<Monster>>(getModelToken(Monster.name));
   });
 
   it('should be defined', () => {
@@ -72,15 +79,11 @@ describe('MonsterService', () => {
   });
 
   it('should return an array of monsters', async () => {
-    jest.spyOn(model, 'find').mockReturnValue({
-      exec: jest.fn().mockResolvedValueOnce(monsterArray),
-    } as any);
     const monsters = await service.findAll();
     expect(monsters).toEqual(monsterArray);
   });
 
   it('should create a monster', async () => {
-    jest.spyOn(model, 'create').mockImplementationOnce(() => Promise.resolve({ ...mockMonster } as any));
     const newMonster = await service.create({} as any);
     expect(newMonster).toEqual(mockMonster);
   });

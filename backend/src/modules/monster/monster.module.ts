@@ -4,10 +4,11 @@ import { MonsterService } from './monster.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { MonsterSchema } from './schema/monster.schema';
 import { MonsterEntity } from './entity/monster.entity';
+import { MonsterRepository } from './monster.repository';
 
 @Module({
   controllers: [MonsterController],
-  providers: [MonsterService],
+  providers: [MonsterRepository, MonsterService],
   imports: [MongooseModule.forFeature([{ name: MonsterEntity.name, schema: MonsterSchema }])],
 })
 export class MonsterModule {}

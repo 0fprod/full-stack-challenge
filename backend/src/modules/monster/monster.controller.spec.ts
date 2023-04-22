@@ -2,7 +2,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { MonsterController } from './monster.controller';
 import { MonsterService } from './monster.service';
 import { getModelToken } from '@nestjs/mongoose';
-import { Monster } from './schema/monster.schema';
+import { MonsterRepository } from './monster.repository';
+import { MonsterEntity } from './entity/monster.entity';
 
 describe('MonsterController', () => {
   let controller: MonsterController;
@@ -12,8 +13,9 @@ describe('MonsterController', () => {
       controllers: [MonsterController],
       providers: [
         MonsterService,
+        MonsterRepository,
         {
-          provide: getModelToken(Monster.name),
+          provide: getModelToken(MonsterEntity.name),
           useValue: {
             find: jest.fn(),
             create: jest.fn(),

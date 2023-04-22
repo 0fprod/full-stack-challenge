@@ -1,56 +1,37 @@
 import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
 import { MonsterEntity } from './entity/monster.entity';
-import { MonsterDocument } from './schema/monster.schema';
+import { MonsterRepository } from './monster.repository';
 
 @Injectable()
 export class MonsterService {
-  constructor(@InjectModel(MonsterEntity.name) private monsterModel: Model<MonsterEntity>) {}
+  constructor(private repository: MonsterRepository) {}
 
-  async create(monster: MonsterEntity): Promise<MonsterEntity> {
-    const createdMonster: MonsterDocument = await new this.monsterModel(monster).save();
-    return this.mapMonsterDocumentToMonsterEntity(createdMonster);
+  findOne(id: string): Promise<MonsterEntity> {
+    return this.repository.findOne(id);
   }
 
-  async findAll(skip?: number, limit?: number): Promise<MonsterEntity[]> {
-    return await this.monsterModel.find({}, {}, { skip, limit });
+  findAll(skip?: number, limit?: number): Promise<MonsterEntity[]> {
+    return this.repository.findAll(skip, limit);
   }
 
-  async findOne(id: string): Promise<MonsterEntity> {
-    return await this.monsterModel.findById(id).exec();
+  create(monster: MonsterEntity): Promise<MonsterEntity> {
+    return this.repository.create(monster);
   }
 
-  async update(monster: Partial<MonsterEntity>): Promise<MonsterEntity> {
-    const id = monster.id;
-    const currentMonster: MonsterDocument = await this.monsterModel.findById(id).exec();
+  async update(partialMonster: Partial<MonsterEntity>): Promise<MonsterEntity> {
+    const id = partialMonster.id;
+    const currentMonster = await this.findOne(id);
 
     if (currentMonster === null) {
       return null;
     }
 
-    const updatedMonster = this.updateMonsterAttribuesWithPartialMonster(
-      this.mapMonsterDocumentToMonsterEntity(currentMonster),
-      monster,
-    );
-    const result: MonsterDocument = await this.monsterModel
-      .findOneAndUpdate({ _id: id }, updatedMonster, { new: true })
-      .exec();
-
-    return this.mapMonsterDocumentToMonsterEntity(result);
+    const updatedMonster = this.updateMonsterAttribuesWithPartialMonster(currentMonster, partialMonster);
+    return this.repository.update(updatedMonster);
   }
 
-  async remove(id: string): Promise<MonsterEntity> {
-    return await this.monsterModel.findByIdAndRemove(id, {});
-  }
-
-  private mapMonsterDocumentToMonsterEntity(monster: MonsterDocument): MonsterEntity {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { _id, __v, ...rest } = monster.toObject<any>();
-    return {
-      id: _id.toString(),
-      ...rest,
-    };
+  remove(id: string): Promise<MonsterEntity> {
+    return this.repository.remove(id);
   }
 
   private updateMonsterAttribuesWithPartialMonster(
