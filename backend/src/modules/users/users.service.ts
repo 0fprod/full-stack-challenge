@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { User } from '../../database/schemas/user.shema';
+import { User } from './schema/user.schema';
+import { UserEntity } from './entity/user.entity';
 
 @Injectable()
 export class UsersService {
@@ -16,7 +17,18 @@ export class UsersService {
     },
   ];
 
-  async findOne(name: string): Promise<User | undefined> {
-    return this.users.find((user) => user.name === name);
+  async findOne(name: string): Promise<UserEntity> {
+    const user = this.users.find((user) => user.name === name);
+    if (!user) return null;
+
+    return this.mapUserToEntity(user);
+  }
+
+  private mapUserToEntity(user: User): UserEntity {
+    return {
+      name: user.name,
+      password: user.password,
+      role: user.role,
+    };
   }
 }
