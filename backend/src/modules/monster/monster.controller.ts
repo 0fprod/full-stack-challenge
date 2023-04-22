@@ -1,8 +1,8 @@
 import { Body, Controller, Delete, Get, NotFoundException, Patch, Post, Query } from '@nestjs/common';
 import { MonsterService } from './monster.service';
 import { MonsterEntity } from './entity/monster.entity';
-import { Roles } from '../common/decoratos/roles.decorator';
-import { Role } from '../common/decoratos/role.enum';
+import { Roles } from '../../common/decoratos/roles.decorator';
+import { Role } from '../../common/decoratos/role.enum';
 import { CreateMonsterDto, UpdateMonsterDTO } from './dto';
 
 @Controller('monster')

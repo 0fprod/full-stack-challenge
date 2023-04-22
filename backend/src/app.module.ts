@@ -4,8 +4,8 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
 import { APP_GUARD } from '@nestjs/core';
-import { AuthGuard } from './modules/common/guards/auth.guard';
-import { RoleGuard } from './modules/common/guards/role.guard';
+import { AuthGuard } from './common/guards/auth.guard';
+import { RoleGuard } from './common/guards/role.guard';
 import { MonsterModule } from './modules/monster/monster.module';
 import { getEnvPath } from './env.config';
 
