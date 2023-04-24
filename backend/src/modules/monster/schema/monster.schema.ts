@@ -3,7 +3,7 @@ import { HydratedDocument } from 'mongoose';
 import { MonsterName } from '../entity/monster.entity';
 
 @Schema()
-export class Monster {
+class Monster {
   @Prop()
   name: MonsterName;
 

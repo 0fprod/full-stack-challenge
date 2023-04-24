@@ -1,4 +1,4 @@
-import { MonsterEntity } from '../../src/modules/monster/entity/monster.entity';
+import { Monster } from '../../src/modules/monster/entity/monster.entity';
 import { MongooseModule, getModelToken } from '@nestjs/mongoose';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { MongoMemoryServer } from 'mongodb-memory-server';
@@ -6,11 +6,12 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { AppModule } from '../../src/app.module';
 import * as request from 'supertest';
 import { Model } from 'mongoose';
+import { UpdateMonsterDTO } from '../../src/modules/monster/dto';
 
 describe('E2E: Requests', () => {
   let app: INestApplication;
   let mongoServer: MongoMemoryServer;
-  let dbModel: Model<MonsterEntity>;
+  let dbModel: Model<Monster>;
 
   beforeAll(async () => {
     mongoServer = await MongoMemoryServer.create();
@@ -24,7 +25,7 @@ describe('E2E: Requests', () => {
       .compile();
 
     app = moduleFixture.createNestApplication();
-    dbModel = moduleFixture.get<Model<MonsterEntity>>(getModelToken(MonsterEntity.name));
+    dbModel = moduleFixture.get<Model<Monster>>(getModelToken(Monster.name));
 
     app.useGlobalPipes(
       new ValidationPipe({
@@ -185,6 +186,34 @@ describe('E2E: Requests', () => {
       });
     });
 
+    it("/monster [PATCH] cant modify a monster's gold balance", async () => {
+      const { id } = await saveMonster({
+        name: {
+          first: 'Test',
+          title: 'Mr',
+          last: null,
+        },
+        nationality: ['ES'],
+      });
+      const updateMonsterDto = new UpdateMonsterDTO();
+      updateMonsterDto.id = id;
+      updateMonsterDto.firstName = 'Mrs';
+      const response = await request(app.getHttpServer())
+        .patch('/monster')
+        .set(everyoneToken)
+        .send({
+          ...updateMonsterDto,
+          goldBalance: 300,
+        });
+
+      expect(response.status).toBe(400);
+      expect(response.body).toEqual({
+        error: 'Bad Request',
+        message: ['property goldBalance should not exist'],
+        statusCode: 400,
+      });
+    });
+
     it('/monster [PATCH] should modify a monster', async () => {
       const { id } = await saveMonster({
         name: {
@@ -235,11 +264,11 @@ describe('E2E: Requests', () => {
       expect(response.body).toEqual({ error: 'Forbidden', message: 'Forbidden resource', statusCode: 403 });
     });
 
-    async function saveMonster(monster: Partial<MonsterEntity>): Promise<MonsterEntity> {
+    async function saveMonster(monster: Partial<Monster>): Promise<Monster> {
       return await new dbModel(monster).save();
     }
 
-    async function saveManyMonsters(monsters: Array<Partial<MonsterEntity>>): Promise<number> {
+    async function saveManyMonsters(monsters: Array<Partial<Monster>>): Promise<number> {
       await dbModel.insertMany(monsters);
       return monsters.length;
     }

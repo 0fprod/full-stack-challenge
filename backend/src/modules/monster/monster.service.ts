@@ -1,24 +1,24 @@
 import { Injectable } from '@nestjs/common';
-import { MonsterEntity } from './entity/monster.entity';
+import { Monster } from './entity/monster.entity';
 import { MonsterRepository } from './monster.repository';
 
 @Injectable()
 export class MonsterService {
   constructor(private repository: MonsterRepository) {}
 
-  findOne(id: string): Promise<MonsterEntity> {
+  findOne(id: string): Promise<Monster> {
     return this.repository.findOne(id);
   }
 
-  findAll(skip?: number, limit?: number): Promise<MonsterEntity[]> {
+  findAll(skip?: number, limit?: number): Promise<Monster[]> {
     return this.repository.findAll(skip, limit);
   }
 
-  create(monster: MonsterEntity): Promise<MonsterEntity> {
+  create(monster: Monster): Promise<Monster> {
     return this.repository.create(monster);
   }
 
-  async update(partialMonster: Partial<MonsterEntity>): Promise<MonsterEntity> {
+  async update(partialMonster: Partial<Monster>): Promise<Monster> {
     const id = partialMonster.id;
     const currentMonster = await this.findOne(id);
 
@@ -30,14 +30,14 @@ export class MonsterService {
     return this.repository.update(updatedMonster);
   }
 
-  remove(id: string): Promise<MonsterEntity> {
+  remove(id: string): Promise<Monster> {
     return this.repository.remove(id);
   }
 
   private updateMonsterAttribuesWithPartialMonster(
-    monsterToUpdate: MonsterEntity,
-    partialMonster: Partial<MonsterEntity>,
-  ): MonsterEntity {
+    monsterToUpdate: Monster,
+    partialMonster: Partial<Monster>,
+  ): Monster {
     function overrideTargetWithSourcePropertiesRecursively(target: any, source: any): any {
       const mergedObject = { ...target };
 
