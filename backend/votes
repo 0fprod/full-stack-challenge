@@ -1,0 +1,34 @@
+CEO can start voting session
+Users can vote for a monster once per voting session
+CEO can end voting session
+CEO can add some random gold to the winner monster
+BoredMike can remove gold from monsters
+
+module/voting
+  /start @CEO -> TurnFeatureFlagOn
+  /vote @Everyone, @Admin, @CEO
+   if featureFlagOff
+    return there is no voting session
+  /end @CEO -> selectWinner then reset
+      --> inect monsterService.updateGold()
+
+VoteSchema
+  - user: userName // AsyncPipeValidation para ver si ya está en BDD es que ya votó
+  - votedFor: monsterId
+
+
+actualizar el updateonster para que no se le pase oro
+
+/add-gold-balance @CEO
+ amount, id
+ amout > 0 else error
+ id exist else error
+ find monster; increaseGold
+
+ /remove-gold
+  amount, id
+  amout > 0 else error
+  id exist else error
+  find monster; decreaseGold
+
+

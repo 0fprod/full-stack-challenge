@@ -8,6 +8,7 @@ import { AuthGuard } from './common/guards/auth.guard';
 import { RoleGuard } from './common/guards/role.guard';
 import { MonsterModule } from './modules/monster/monster.module';
 import { getEnvPath } from './env.config';
+import { VoteModule } from './modules/vote/vote.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { getEnvPath } from './env.config';
     AuthModule,
     UsersModule,
     MonsterModule,
+    VoteModule,
   ],
   controllers: [],
   providers: [
