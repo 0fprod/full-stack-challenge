@@ -4,17 +4,39 @@ import { Monster } from './entity/monster.entity';
 import { Roles } from '../../common/decoratos/roles.decorator';
 import { Role } from '../../common/decoratos/role.enum';
 import { CreateMonsterDto, UpdateMonsterDTO } from './dto';
+import { ApiOperation, ApiResponse, ApiQuery, ApiBearerAuth } from '@nestjs/swagger';
 
 @Controller('monster')
 export class MonsterController {
   constructor(private monsterService: MonsterService) {}
 
+  @ApiBearerAuth('swaggerBearerAuth')
+  @ApiOperation({ summary: 'Find all monsters (authenticated)' })
+  @ApiQuery({ name: 'skip', required: false, type: Number })
+  @ApiQuery({ name: 'limit', required: false, type: Number })
+  @ApiResponse({ status: 401, description: 'Unauthorized.' })
+  @ApiResponse({ status: 403, description: 'Forbidden.' })
+  @ApiResponse({
+    status: 200,
+    isArray: true,
+    type: Monster,
+    description: 'Monsters found',
+  })
   @Roles(Role.Admin, Role.User)
   @Get()
-  findAll(@Query('skip') skip: number, @Query('limit') limit: number): Promise<Monster[]> {
+  findAll(@Query('skip') skip?: number, @Query('limit') limit?: number): Promise<Monster[]> {
     return this.monsterService.findAll(skip, limit);
   }
 
+  @ApiBearerAuth('swaggerBearerAuth')
+  @ApiOperation({ summary: 'Creates a monster' })
+  @ApiResponse({ status: 401, description: 'Unauthorized.' })
+  @ApiResponse({ status: 403, description: 'Forbidden.' })
+  @ApiResponse({
+    status: 201,
+    type: Monster,
+    description: 'Created monster',
+  })
   @Roles(Role.Admin)
   @Post()
   create(@Body() createMonsterDto: CreateMonsterDto): Promise<Monster> {
@@ -23,6 +45,15 @@ export class MonsterController {
     return this.monsterService.create(monster);
   }
 
+  @ApiBearerAuth('swaggerBearerAuth')
+  @ApiOperation({ summary: 'Updates a monster' })
+  @ApiResponse({ status: 401, description: 'Unauthorized.' })
+  @ApiResponse({ status: 403, description: 'Forbidden.' })
+  @ApiResponse({
+    status: 200,
+    type: Monster,
+    description: 'Updated monster',
+  })
   @Roles(Role.Admin)
   @Patch()
   async update(@Body() updateMonsterDto: UpdateMonsterDTO): Promise<Monster> {
@@ -36,6 +67,16 @@ export class MonsterController {
     return updatedMonster;
   }
 
+  @ApiBearerAuth('swaggerBearerAuth')
+  @ApiOperation({ summary: 'Deletes a monster' })
+  @ApiResponse({ status: 401, description: 'Unauthorized.' })
+  @ApiResponse({ status: 403, description: 'Forbidden.' })
+  @ApiResponse({ status: 404, description: 'Monster not found.' })
+  @ApiResponse({
+    status: 200,
+    type: Monster,
+    description: 'Removed monster',
+  })
   @Roles(Role.Admin)
   @Delete()
   async delete(@Query('id') monsterId: string): Promise<Monster> {
