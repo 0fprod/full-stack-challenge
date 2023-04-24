@@ -1,11 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { MonsterService } from './monster.service';
 import { getModelToken } from '@nestjs/mongoose';
-import { Monster } from './schema/monster.schema';
 import { MonsterRepository } from './monster.repository';
-import { MonsterEntity } from './entity/monster.entity';
+import { Monster } from './entity/monster.entity';
 
 const mockMonster: Monster = {
+  id: 'anId',
   name: { first: 'Niamh', last: 'Dragon', title: 'Ms' },
   gender: 'female',
   description: 'irrelevant description',
@@ -20,6 +20,7 @@ const mockMonster: Monster = {
 
 const monsterArray: Array<Monster> = [
   {
+    id: 'anId',
     name: { first: 'Lei', last: 'Dragon', title: 'Ms' },
     gender: 'female',
     description: 'irrelevant description',
@@ -32,6 +33,7 @@ const monsterArray: Array<Monster> = [
     monsterPassword: 'lei7890',
   },
   {
+    id: 'anotherId',
     name: { first: 'Erik', last: 'Dragon', title: 'Mr' },
     gender: 'male',
     description: 'irrelevant description',
@@ -51,7 +53,6 @@ describe('MonsterService', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        // MonsterRepository,
         {
           provide: MonsterRepository,
           useValue: {
@@ -61,7 +62,7 @@ describe('MonsterService', () => {
         },
         MonsterService,
         {
-          provide: getModelToken(MonsterEntity.name),
+          provide: getModelToken(Monster.name),
           useValue: {
             find: jest.fn(),
             create: jest.fn(),

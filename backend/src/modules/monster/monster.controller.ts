@@ -1,6 +1,6 @@
 import { Body, Controller, Delete, Get, NotFoundException, Patch, Post, Query } from '@nestjs/common';
 import { MonsterService } from './monster.service';
-import { MonsterEntity } from './entity/monster.entity';
+import { Monster } from './entity/monster.entity';
 import { Roles } from '../../common/decoratos/roles.decorator';
 import { Role } from '../../common/decoratos/role.enum';
 import { CreateMonsterDto, UpdateMonsterDTO } from './dto';
@@ -11,22 +11,22 @@ export class MonsterController {
 
   @Roles(Role.Admin, Role.User)
   @Get()
-  findAll(@Query('skip') skip: number, @Query('limit') limit: number): Promise<MonsterEntity[]> {
+  findAll(@Query('skip') skip: number, @Query('limit') limit: number): Promise<Monster[]> {
     return this.monsterService.findAll(skip, limit);
   }
 
   @Roles(Role.Admin)
   @Post()
-  create(@Body() createMonsterDto: CreateMonsterDto): Promise<MonsterEntity> {
-    const monster = MonsterEntity.fromCreateMonsterDTO(createMonsterDto);
+  create(@Body() createMonsterDto: CreateMonsterDto): Promise<Monster> {
+    const monster = Monster.fromCreateMonsterDTO(createMonsterDto);
 
     return this.monsterService.create(monster);
   }
 
   @Roles(Role.Admin)
   @Patch()
-  async update(@Body() updateMonsterDto: UpdateMonsterDTO): Promise<MonsterEntity> {
-    const monster = MonsterEntity.fromUpdateMonsterDTO(updateMonsterDto);
+  async update(@Body() updateMonsterDto: UpdateMonsterDTO): Promise<Monster> {
+    const monster = Monster.fromUpdateMonsterDTO(updateMonsterDto);
     const updatedMonster = await this.monsterService.update(monster);
 
     if (updatedMonster === null) {
@@ -38,7 +38,7 @@ export class MonsterController {
 
   @Roles(Role.Admin)
   @Delete()
-  async delete(@Query('id') monsterId: string): Promise<MonsterEntity> {
+  async delete(@Query('id') monsterId: string): Promise<Monster> {
     const deletedMonster = await this.monsterService.remove(monsterId);
 
     if (deletedMonster === null) {

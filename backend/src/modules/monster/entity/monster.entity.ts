@@ -13,7 +13,7 @@ export class MonsterName {
   }
 }
 
-export class MonsterEntity {
+export class Monster {
   id: string;
   name: MonsterName;
   nationality: string[];
@@ -50,7 +50,7 @@ export class MonsterEntity {
     this.monsterPassword = monsterPassword;
   }
 
-  public static fromCreateMonsterDTO(dto: CreateMonsterDto): MonsterEntity {
+  public static fromCreateMonsterDTO(dto: CreateMonsterDto): Monster {
     const name = new MonsterName(dto.title, dto.firstName, dto.lastName);
     const nationality = [...dto.nationality];
     const gender = dto.gender;
@@ -62,7 +62,7 @@ export class MonsterEntity {
     const secretNotes = dto.secretNotes;
     const monsterPassword = dto.monsterPassword;
 
-    return new MonsterEntity(
+    return new Monster(
       name,
       nationality,
       gender,
@@ -76,7 +76,7 @@ export class MonsterEntity {
     );
   }
 
-  public static fromUpdateMonsterDTO(dto: UpdateMonsterDTO): Partial<MonsterEntity> {
+  public static fromUpdateMonsterDTO(dto: UpdateMonsterDTO): Partial<Monster> {
     const name = new MonsterName(dto.title, dto.firstName, dto.lastName);
     const nationality = dto.nationality;
     const gender = dto.gender;
@@ -88,7 +88,7 @@ export class MonsterEntity {
     const secretNotes = dto.secretNotes;
     const monsterPassword = dto.monsterPassword;
 
-    const monsterEntitiy: Partial<MonsterEntity> = {
+    const monsterEntitiy: Partial<Monster> = {
       id: dto.id,
       name,
       nationality,

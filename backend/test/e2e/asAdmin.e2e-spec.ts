@@ -1,4 +1,4 @@
-import { MonsterEntity } from '../../src/modules/monster/entity/monster.entity';
+import { Monster } from '../../src/modules/monster/entity/monster.entity';
 import { MongooseModule, getModelToken } from '@nestjs/mongoose';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { MongoMemoryServer } from 'mongodb-memory-server';
@@ -10,7 +10,7 @@ import { Model } from 'mongoose';
 describe('E2E: Requests', () => {
   let app: INestApplication;
   let mongoServer: MongoMemoryServer;
-  let dbModel: Model<MonsterEntity>;
+  let dbModel: Model<Monster>;
 
   beforeAll(async () => {
     mongoServer = await MongoMemoryServer.create();
@@ -24,7 +24,7 @@ describe('E2E: Requests', () => {
       .compile();
 
     app = moduleFixture.createNestApplication();
-    dbModel = moduleFixture.get<Model<MonsterEntity>>(getModelToken(MonsterEntity.name));
+    dbModel = moduleFixture.get<Model<Monster>>(getModelToken(Monster.name));
 
     app.useGlobalPipes(
       new ValidationPipe({
@@ -235,11 +235,11 @@ describe('E2E: Requests', () => {
       expect(response.body).toEqual({ error: 'Forbidden', message: 'Forbidden resource', statusCode: 403 });
     });
 
-    async function saveMonster(monster: Partial<MonsterEntity>): Promise<MonsterEntity> {
+    async function saveMonster(monster: Partial<Monster>): Promise<Monster> {
       return await new dbModel(monster).save();
     }
 
-    async function saveManyMonsters(monsters: Array<Partial<MonsterEntity>>): Promise<number> {
+    async function saveManyMonsters(monsters: Array<Partial<Monster>>): Promise<number> {
       await dbModel.insertMany(monsters);
       return monsters.length;
     }
