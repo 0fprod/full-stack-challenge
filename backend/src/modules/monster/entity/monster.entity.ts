@@ -32,7 +32,6 @@ export class Monster {
     gender: string,
     description: string,
     imageUrl: string,
-    goldBalance: number,
     speed: number,
     health: number,
     secretNotes: string,
@@ -43,7 +42,6 @@ export class Monster {
     this.gender = gender;
     this.description = description;
     this.imageUrl = imageUrl;
-    this.goldBalance = goldBalance;
     this.speed = speed;
     this.health = health;
     this.secretNotes = secretNotes;
@@ -56,24 +54,12 @@ export class Monster {
     const gender = dto.gender;
     const description = dto.description;
     const imageUrl = dto.imageUrl;
-    const goldBalance = dto.goldBalance;
     const speed = dto.speed;
     const health = dto.health;
     const secretNotes = dto.secretNotes;
     const monsterPassword = dto.monsterPassword;
 
-    return new Monster(
-      name,
-      nationality,
-      gender,
-      description,
-      imageUrl,
-      goldBalance,
-      speed,
-      health,
-      secretNotes,
-      monsterPassword,
-    );
+    return new Monster(name, nationality, gender, description, imageUrl, speed, health, secretNotes, monsterPassword);
   }
 
   public static fromUpdateMonsterDTO(dto: UpdateMonsterDTO): Partial<Monster> {
@@ -82,7 +68,6 @@ export class Monster {
     const gender = dto.gender;
     const description = dto.description;
     const imageUrl = dto.imageUrl;
-    const goldBalance = dto.goldBalance;
     const speed = dto.speed;
     const health = dto.health;
     const secretNotes = dto.secretNotes;
@@ -95,7 +80,6 @@ export class Monster {
       gender,
       description,
       imageUrl,
-      goldBalance,
       speed,
       health,
       secretNotes,

@@ -39,11 +39,6 @@ export class UpdateMonsterDTO {
   @IsOptional()
   @IsNumber()
   @Min(0)
-  goldBalance: number;
-
-  @IsOptional()
-  @IsNumber()
-  @Min(0)
   speed: number;
 
   @IsOptional()

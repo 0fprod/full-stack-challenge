@@ -6,6 +6,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { AppModule } from '../../src/app.module';
 import * as request from 'supertest';
 import { Model } from 'mongoose';
+import { UpdateMonsterDTO } from '../../src/modules/monster/dto';
 
 describe('E2E: Requests', () => {
   let app: INestApplication;
@@ -182,6 +183,34 @@ describe('E2E: Requests', () => {
         error: 'Not Found',
         message: 'Monster doesnt exist, review the monster id.',
         statusCode: 404,
+      });
+    });
+
+    it("/monster [PATCH] cant modify a monster's gold balance", async () => {
+      const { id } = await saveMonster({
+        name: {
+          first: 'Test',
+          title: 'Mr',
+          last: null,
+        },
+        nationality: ['ES'],
+      });
+      const updateMonsterDto = new UpdateMonsterDTO();
+      updateMonsterDto.id = id;
+      updateMonsterDto.firstName = 'Mrs';
+      const response = await request(app.getHttpServer())
+        .patch('/monster')
+        .set(everyoneToken)
+        .send({
+          ...updateMonsterDto,
+          goldBalance: 300,
+        });
+
+      expect(response.status).toBe(400);
+      expect(response.body).toEqual({
+        error: 'Bad Request',
+        message: ['property goldBalance should not exist'],
+        statusCode: 400,
       });
     });
 
