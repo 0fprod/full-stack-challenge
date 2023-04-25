@@ -48,7 +48,7 @@ describe('E2E: Requests', () => {
     beforeAll(async () => {
       const response = await request(app.getHttpServer())
         .post('/auth/login')
-        .send({ username: 'Bored Mike', password: 'mike' });
+        .send({ username: 'bored_mike', password: 'mike' });
       everyoneToken['Authorization'] = `Bearer ${response.body.access_token}`;
     });
 

@@ -3,10 +3,9 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Monster } from './entity/monster.entity';
 import { MonsterDocument } from './schema/monster.schema';
-import { MongoRepository } from 'src/database/mongo.repository';
 
 @Injectable()
-export class MonsterRepository implements MongoRepository<Monster> {
+export class MonsterRepository {
   constructor(@InjectModel(Monster.name) private monsterModel: Model<Monster>) {}
 
   async create(monster: Monster): Promise<Monster> {

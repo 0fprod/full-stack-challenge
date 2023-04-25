@@ -6,14 +6,24 @@ import { UserEntity } from './entity/user.entity';
 export class UsersService {
   private readonly users: Array<User> = [
     {
-      name: 'Bored Mike',
-      role: 'admin',
+      name: 'bored_mike',
       password: 'mike',
+      role: 'admin',
     },
     {
-      name: 'Everyone',
-      role: 'user',
+      name: 'ceo',
+      password: 'ceo',
+      role: 'ceo',
+    },
+    {
+      name: 'john_doe',
       password: 'public',
+      role: 'user',
+    },
+    {
+      name: 'jane_doe',
+      password: 'public',
+      role: 'user',
     },
   ];
 

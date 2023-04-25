@@ -32,6 +32,7 @@ export class UpdateMonsterDTO {
     required: false,
   })
   @IsString({ each: true })
+  @IsOptional()
   @MaxLength(2, {
     each: true,
   })

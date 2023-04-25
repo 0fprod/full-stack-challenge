@@ -4,8 +4,9 @@ import { Monster } from './entity/monster.entity';
 import { Roles } from '../../common/decoratos/roles.decorator';
 import { Role } from '../../common/decoratos/role.enum';
 import { CreateMonsterDto, UpdateMonsterDTO } from './dto';
-import { ApiOperation, ApiResponse, ApiQuery, ApiBearerAuth } from '@nestjs/swagger';
+import { ApiOperation, ApiResponse, ApiQuery, ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('monster')
 @Controller('monster')
 export class MonsterController {
   constructor(private monsterService: MonsterService) {}
