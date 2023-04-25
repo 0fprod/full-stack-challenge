@@ -7,7 +7,7 @@ export class Vote {
   voteEnd: Date;
   isActive: boolean;
   winnerMonsterId: string;
-  userVotes: Record<userName, votedFor>;
+  userVotes: Record<userName, votedFor> = {};
 
   start() {
     this.isActive = true;

@@ -1,10 +1,10 @@
-import { VoteEntity } from './vote.entity';
+import { Vote } from './vote.entity';
 
 describe('VoteEntity', () => {
-  let voteEntity: VoteEntity;
+  let voteEntity: Vote;
 
   beforeEach(() => {
-    voteEntity = new VoteEntity();
+    voteEntity = new Vote();
   });
 
   it('should start a vote', () => {
@@ -21,7 +21,7 @@ describe('VoteEntity', () => {
 
   it('should vote for a monster', () => {
     voteEntity.vote('John', 'A monster');
-    expect(voteEntity.userVotes.get('John')).toBe('A monster');
+    expect(voteEntity.userVotes['John']).toBe('A monster');
   });
 
   it('should not allow a user to vote twice', () => {
@@ -30,9 +30,9 @@ describe('VoteEntity', () => {
   });
 
   it('should select a winner', () => {
-    voteEntity.userVotes.set('John', 'A monster');
-    voteEntity.userVotes.set('Jane', 'A different monster');
-    voteEntity.userVotes.set('Bob', 'A monster');
+    voteEntity.userVotes['John'] = 'A monster';
+    voteEntity.userVotes['Jane'] = 'A different monster';
+    voteEntity.userVotes['Bob'] = 'A monster';
     voteEntity.selectWinner();
     expect(voteEntity.winnerMonsterId).toBe('A monster');
   });
