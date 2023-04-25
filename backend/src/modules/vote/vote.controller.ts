@@ -4,23 +4,28 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  Inject,
   NotFoundException,
   Post,
   Query,
   Request,
+  forwardRef,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Role } from '../../common/decoratos/role.enum';
 import { Roles } from '../../common/decoratos/roles.decorator';
 import { VoteService } from './vote.service';
 import { MonsterService } from '../monster/monster.service';
-import { Public } from 'src/common/decoratos/auth.decorator';
+import { Public } from '../../common/decoratos/auth.decorator';
 import { Vote } from './entity/vote.entity';
 
 @ApiTags('vote')
 @Controller('vote')
 export class VoteController {
-  constructor(private voteService: VoteService, private monsterService: MonsterService) {}
+  constructor(
+    private voteService: VoteService,
+    @Inject(forwardRef(() => MonsterService)) private monsterService: MonsterService,
+  ) {}
 
   @ApiBearerAuth('swaggerBearerAuth')
   @ApiOperation({ summary: 'Starts a voting session' })

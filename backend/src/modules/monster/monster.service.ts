@@ -34,6 +34,16 @@ export class MonsterService {
     return this.repository.remove(id);
   }
 
+  increaseGold(monster: Monster): Promise<Monster> {
+    monster.goldBalance += 10;
+    return this.update(monster);
+  }
+
+  decreaseGold(monster: Monster): Promise<Monster> {
+    monster.goldBalance -= 10;
+    return this.update(monster);
+  }
+
   private updateMonsterAttribuesWithPartialMonster(
     monsterToUpdate: Monster,
     partialMonster: Partial<Monster>,

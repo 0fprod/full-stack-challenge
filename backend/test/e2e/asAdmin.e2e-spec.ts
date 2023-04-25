@@ -7,11 +7,13 @@ import { AppModule } from '../../src/app.module';
 import * as request from 'supertest';
 import { Model } from 'mongoose';
 import { UpdateMonsterDTO } from '../../src/modules/monster/dto';
+import { Vote } from '../../src/modules/vote/entity/vote.entity';
 
 describe('E2E: Requests', () => {
   let app: INestApplication;
   let mongoServer: MongoMemoryServer;
-  let dbModel: Model<Monster>;
+  let dbMonsterModel: Model<Monster>;
+  let dbVoteModel: Model<Vote>;
 
   beforeAll(async () => {
     mongoServer = await MongoMemoryServer.create();
@@ -25,7 +27,8 @@ describe('E2E: Requests', () => {
       .compile();
 
     app = moduleFixture.createNestApplication();
-    dbModel = moduleFixture.get<Model<Monster>>(getModelToken(Monster.name));
+    dbVoteModel = moduleFixture.get<Model<Vote>>(getModelToken(Vote.name));
+    dbMonsterModel = moduleFixture.get<Model<Monster>>(getModelToken(Monster.name));
 
     app.useGlobalPipes(
       new ValidationPipe({
@@ -43,17 +46,17 @@ describe('E2E: Requests', () => {
   });
 
   describe('as an Admin user to', () => {
-    const everyoneToken = {};
+    const adminToken = {};
 
     beforeAll(async () => {
       const response = await request(app.getHttpServer())
         .post('/auth/login')
         .send({ username: 'bored_mike', password: 'mike' });
-      everyoneToken['Authorization'] = `Bearer ${response.body.access_token}`;
+      adminToken['Authorization'] = `Bearer ${response.body.access_token}`;
     });
 
     afterEach(async () => {
-      await dbModel.deleteMany({});
+      await dbMonsterModel.deleteMany({});
     });
 
     it('/monster [POST] should not create invalid monsters', async () => {
@@ -63,7 +66,7 @@ describe('E2E: Requests', () => {
         nationality: ['INVALID_NATIONALITY'],
       };
 
-      const response = await request(app.getHttpServer()).post('/monster').set(everyoneToken).send(invalidMonsterDto);
+      const response = await request(app.getHttpServer()).post('/monster').set(adminToken).send(invalidMonsterDto);
 
       expect(response.status).toBe(400);
       expect(response.body).toEqual({
@@ -80,7 +83,7 @@ describe('E2E: Requests', () => {
         nationality: ['ES'],
       };
 
-      const response = await request(app.getHttpServer()).post('/monster').set(everyoneToken).send(validMonsterDto);
+      const response = await request(app.getHttpServer()).post('/monster').set(adminToken).send(validMonsterDto);
 
       expect(response.status).toBe(201);
       expect(response.body).toEqual({
@@ -99,7 +102,7 @@ describe('E2E: Requests', () => {
         },
       });
 
-      const response = await request(app.getHttpServer()).get('/monster').set(everyoneToken);
+      const response = await request(app.getHttpServer()).get('/monster').set(adminToken);
       expect(response.status).toBe(200);
       expect(response.body).toHaveLength(1);
     });
@@ -136,12 +139,12 @@ describe('E2E: Requests', () => {
         },
       ]);
 
-      const firstTwo = await request(app.getHttpServer()).get('/monster').set(everyoneToken).query({
+      const firstTwo = await request(app.getHttpServer()).get('/monster').set(adminToken).query({
         skip: 0,
         limit: 2,
       });
 
-      const lastTwo = await request(app.getHttpServer()).get('/monster').set(everyoneToken).query({
+      const lastTwo = await request(app.getHttpServer()).get('/monster').set(adminToken).query({
         skip: 2,
         limit: 2,
       });
@@ -160,7 +163,7 @@ describe('E2E: Requests', () => {
       };
       const response = await request(app.getHttpServer())
         .patch('/monster')
-        .set(everyoneToken)
+        .set(adminToken)
         .send(updateMonsterDtoWithoutId);
 
       expect(response.status).toBe(400);
@@ -176,7 +179,7 @@ describe('E2E: Requests', () => {
         id: '64417380f8799e1a9b4fb823',
         title: 'Mrs',
       };
-      const response = await request(app.getHttpServer()).patch('/monster').set(everyoneToken).send(updateMonsterDto);
+      const response = await request(app.getHttpServer()).patch('/monster').set(adminToken).send(updateMonsterDto);
 
       expect(response.status).toBe(404);
       expect(response.body).toEqual({
@@ -200,7 +203,7 @@ describe('E2E: Requests', () => {
       updateMonsterDto.firstName = 'Mrs';
       const response = await request(app.getHttpServer())
         .patch('/monster')
-        .set(everyoneToken)
+        .set(adminToken)
         .send({
           ...updateMonsterDto,
           goldBalance: 300,
@@ -227,7 +230,7 @@ describe('E2E: Requests', () => {
         id,
         title: 'Mrs',
       };
-      const response = await request(app.getHttpServer()).patch('/monster').set(everyoneToken).send(updateMonsterDto);
+      const response = await request(app.getHttpServer()).patch('/monster').set(adminToken).send(updateMonsterDto);
 
       expect(response.status).toBe(200);
       expect(response.body).toEqual({
@@ -245,32 +248,55 @@ describe('E2E: Requests', () => {
       };
       const { id } = await saveMonster(validMonsterDto);
 
-      const response = await request(app.getHttpServer()).delete('/monster').set(everyoneToken).query({ id });
+      const response = await request(app.getHttpServer()).delete('/monster').set(adminToken).query({ id });
 
       expect(response.status).toBe(200);
 
-      const getAllMonsters = await request(app.getHttpServer()).get('/monster').set(everyoneToken);
+      const getAllMonsters = await request(app.getHttpServer()).get('/monster').set(adminToken);
       expect(getAllMonsters.status).toBe(200);
       expect(getAllMonsters.body).toEqual([]);
     });
 
-    it.skip('/update-gold [POST] should be forbidden', async () => {
-      const response = await request(app.getHttpServer())
-        .post('/update-gold')
-        .set(everyoneToken)
-        .send({ name: 'Test' });
+    it('/monster/add-gold [POST] cannot add gold to the winner monster', async () => {
+      const { id } = await dbMonsterModel.create({ name: 'monster1', goldBalance: 0 });
+      await createVotingSession({
+        isActive: true,
+        winnerMonsterId: id,
+      });
+
+      const response = await request(app.getHttpServer()).post('/monster/add-gold').set(adminToken).send();
 
       expect(response.status).toBe(403);
-      expect(response.body).toEqual({ error: 'Forbidden', message: 'Forbidden resource', statusCode: 403 });
+      expect(response.body).toEqual({
+        error: 'Forbidden',
+        message: 'Forbidden resource',
+        statusCode: 403,
+      });
+    });
+
+    it('/monster/substract-gold [POST] cannot substract gold from monsters', async () => {
+      const { id } = await dbMonsterModel.create({ name: 'monster1', goldBalance: 10 });
+      const response = await request(app.getHttpServer())
+        .post('/monster/substract-gold')
+        .set(adminToken)
+        .query({ monsterId: id })
+        .send();
+
+      expect(response.status).toBe(200);
+      expect(response.body.goldBalance).toEqual(0);
     });
 
     async function saveMonster(monster: Partial<Monster>): Promise<Monster> {
-      return await new dbModel(monster).save();
+      return await new dbMonsterModel(monster).save();
     }
 
     async function saveManyMonsters(monsters: Array<Partial<Monster>>): Promise<number> {
-      await dbModel.insertMany(monsters);
+      await dbMonsterModel.insertMany(monsters);
       return monsters.length;
+    }
+
+    async function createVotingSession(vote: Partial<Vote>): Promise<Vote> {
+      return await new dbVoteModel(vote).save();
     }
   });
 });

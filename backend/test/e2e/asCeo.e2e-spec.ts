@@ -160,6 +160,31 @@ describe('E2E: Requests', () => {
       });
     });
 
+    it('/monster/add-gold [POST] should add gold to the winner monster', async () => {
+      const { id } = await dbMonsterModel.create({ name: 'monster1', goldBalance: 0 });
+      await createVotingSession({
+        isActive: true,
+        winnerMonsterId: id,
+      });
+
+      const response = await request(app.getHttpServer()).post('/monster/add-gold').set(ceoToken).send();
+
+      expect(response.status).toBe(200);
+      expect(response.body.goldBalance).toEqual(10);
+    });
+
+    it('/monster/substract-gold [POST] cannot substract gold from monsters', async () => {
+      await dbMonsterModel.create({ name: 'monster1', goldBalance: 10 });
+      const response = await request(app.getHttpServer()).post('/monster/substract-gold').set(ceoToken).send();
+
+      expect(response.status).toBe(403);
+      expect(response.body).toEqual({
+        error: 'Forbidden',
+        message: 'Forbidden resource',
+        statusCode: 403,
+      });
+    });
+
     async function createVotingSession(vote: Partial<Vote>): Promise<Vote> {
       return await new dbVoteModel(vote).save();
     }

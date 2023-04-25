@@ -1,15 +1,31 @@
-import { Body, Controller, Delete, Get, NotFoundException, Patch, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  Inject,
+  NotFoundException,
+  Patch,
+  Post,
+  Query,
+  forwardRef,
+} from '@nestjs/common';
 import { MonsterService } from './monster.service';
 import { Monster } from './entity/monster.entity';
 import { Roles } from '../../common/decoratos/roles.decorator';
 import { Role } from '../../common/decoratos/role.enum';
 import { CreateMonsterDto, UpdateMonsterDTO } from './dto';
 import { ApiOperation, ApiResponse, ApiQuery, ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { VoteService } from '../vote/vote.service';
 
 @ApiTags('monster')
 @Controller('monster')
 export class MonsterController {
-  constructor(private monsterService: MonsterService) {}
+  constructor(
+    private monsterService: MonsterService,
+    @Inject(forwardRef(() => VoteService)) private voteService: VoteService,
+  ) {}
 
   @ApiBearerAuth('swaggerBearerAuth')
   @ApiOperation({ summary: 'Find all monsters (authenticated)' })
@@ -88,5 +104,46 @@ export class MonsterController {
     }
 
     return deletedMonster;
+  }
+
+  @ApiBearerAuth('swaggerBearerAuth')
+  @ApiOperation({ summary: 'Only the CEO adds gold to the winner monster' })
+  @ApiResponse({ status: 401, description: 'Unauthorized.' })
+  @ApiResponse({ status: 403, description: 'Forbidden.' })
+  @ApiResponse({ status: 404, description: 'Monster not found.' })
+  @ApiResponse({
+    status: 200,
+    type: Monster,
+    description: 'Increase winner monster gold balance by 10',
+  })
+  @Roles(Role.Ceo)
+  @HttpCode(200)
+  @Post('add-gold')
+  async addGold(): Promise<Monster> {
+    const votingSession = await this.voteService.viewVotes();
+    const winnerMonster = await this.monsterService.findOne(votingSession.winnerMonsterId);
+    return await this.monsterService.increaseGold(winnerMonster);
+  }
+
+  @ApiBearerAuth('swaggerBearerAuth')
+  @ApiOperation({ summary: 'Only bored_mike subtracts gold from the given monster' })
+  @ApiResponse({ status: 401, description: 'Unauthorized.' })
+  @ApiResponse({ status: 403, description: 'Forbidden.' })
+  @ApiResponse({ status: 404, description: 'Monster not found.' })
+  @ApiResponse({
+    status: 200,
+    type: Monster,
+    description: 'Decrease the given monster gold balance by 10',
+  })
+  @Roles(Role.Admin)
+  @HttpCode(200)
+  @Post('substract-gold')
+  async substractGold(@Query('monsterId') monsterId: string): Promise<Monster> {
+    const monster = await this.monsterService.findOne(monsterId);
+    if (!monster) {
+      throw new NotFoundException('Monster doesnt exist, review the monster id.');
+    }
+
+    return await this.monsterService.decreaseGold(monster);
   }
 }
