@@ -8,18 +8,26 @@ import {
   Post,
   Query,
   Request,
-  UseGuards,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Role } from '../../common/decoratos/role.enum';
 import { Roles } from '../../common/decoratos/roles.decorator';
 import { VoteService } from './vote.service';
 import { MonsterService } from '../monster/monster.service';
+import { Public } from 'src/common/decoratos/auth.decorator';
+import { Vote } from './entity/vote.entity';
 
 @ApiTags('vote')
 @Controller('vote')
 export class VoteController {
   constructor(private voteService: VoteService, private monsterService: MonsterService) {}
+
+  @ApiBearerAuth('swaggerBearerAuth')
+  @ApiOperation({ summary: 'Starts a voting session' })
+  @ApiResponse({ status: 201, type: Vote })
+  @ApiResponse({ status: 400, description: 'Bad request' })
+  @ApiResponse({ status: 401, description: 'Unauthorized.' })
+  @ApiResponse({ status: 403, description: 'Forbidden.' })
   @Roles(Role.Ceo)
   @Post('start')
   async startVotingSession() {
@@ -30,6 +38,12 @@ export class VoteController {
     }
   }
 
+  @ApiBearerAuth('swaggerBearerAuth')
+  @ApiOperation({ summary: 'Stops an existing voting session' })
+  @ApiResponse({ status: 200, type: Vote })
+  @ApiResponse({ status: 400, description: 'Bad request' })
+  @ApiResponse({ status: 401, description: 'Unauthorized.' })
+  @ApiResponse({ status: 403, description: 'Forbidden.' })
   @HttpCode(HttpStatus.OK)
   @Roles(Role.Ceo)
   @Post('stop')
@@ -41,12 +55,27 @@ export class VoteController {
     }
   }
 
-  @Roles(Role.Ceo, Role.User, Role.Admin)
+  @ApiOperation({ summary: 'Retrieves the current voting session' })
+  @ApiResponse({ status: 200, type: Vote })
+  @ApiResponse({ status: 404, description: 'Not Found.' })
+  @HttpCode(HttpStatus.OK)
+  @Public()
   @Get('status')
   async viewVotes() {
-    return await this.voteService.viewVotes();
+    const votes = await this.voteService.viewVotes();
+    if (!votes) {
+      throw new NotFoundException();
+    }
+    return votes;
   }
 
+  @ApiBearerAuth('swaggerBearerAuth')
+  @ApiOperation({ summary: 'Allow logged in users to register a vote' })
+  @ApiResponse({ status: 200, type: Vote })
+  @ApiResponse({ status: 400, description: 'Bad request' })
+  @ApiResponse({ status: 401, description: 'Unauthorized.' })
+  @ApiResponse({ status: 403, description: 'Forbidden.' })
+  @ApiResponse({ status: 404, description: 'Not Found.' })
   @Roles(Role.Ceo, Role.User, Role.Admin)
   @Post()
   async vote(@Request() req, @Query('monsterId') voteFor: string) {
