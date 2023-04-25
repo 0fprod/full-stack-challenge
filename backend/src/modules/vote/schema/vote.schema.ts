@@ -1,9 +1,8 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
-import { userName, votedFor } from '../entity/vote.entity';
 
 @Schema()
-export class Vote {
+class Vote {
   @Prop()
   voteStart: Date;
 
@@ -14,10 +13,10 @@ export class Vote {
   isActive: boolean;
 
   @Prop()
-  dragonWinnerId: string;
+  winnerMonsterId: string;
 
-  @Prop()
-  userVotes: Map<userName, votedFor>;
+  @Prop({ type: Object })
+  userVotes: Record<string, string>;
 }
 
 export type VoteDocument = HydratedDocument<Vote>;

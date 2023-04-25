@@ -1,13 +1,13 @@
 export type userName = string;
 export type votedFor = string;
 
-export class VoteEntity {
+export class Vote {
   id: string;
   voteStart: Date;
   voteEnd: Date;
   isActive: boolean;
   winnerMonsterId: string;
-  userVotes: Map<userName, votedFor>;
+  userVotes: Record<userName, votedFor>;
 
   start() {
     this.isActive = true;
@@ -22,7 +22,7 @@ export class VoteEntity {
   selectWinner() {
     const monsterVotes: Record<string, number> = {};
 
-    for (const votedFor of this.userVotes.values()) {
+    for (const votedFor of Object.values(this.userVotes)) {
       monsterVotes[votedFor] = (monsterVotes[votedFor] ?? 0) + 1;
     }
 
@@ -38,10 +38,10 @@ export class VoteEntity {
   }
 
   vote(userName: string, monsterId: string) {
-    if (!this.userVotes.has(userName)) {
-      this.userVotes.set(userName, monsterId);
-    } else {
+    if (this.userVotes[userName]) {
       throw new Error('User already voted');
+    } else {
+      this.userVotes[userName] = monsterId;
     }
   }
 }

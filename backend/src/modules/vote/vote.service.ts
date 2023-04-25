@@ -1,28 +1,45 @@
 import { Injectable } from '@nestjs/common';
-import { MonsterRepository } from '../monster/monster.repository';
-import { VoteEntity } from './entity/vote.entity';
+import { Vote } from './entity/vote.entity';
 import { VoteRepository } from './vote.repository';
 
 @Injectable()
 export class VoteService {
-  constructor(private voteRepository: VoteRepository, private monsterRepository: MonsterRepository) {}
+  constructor(private voteRepository: VoteRepository) {}
 
-  startVotingSession() {
-    const votingSession = new VoteEntity();
+  async startVotingSession() {
+    const activeVotingSession = await this.voteRepository.find();
+    if (activeVotingSession) {
+      throw new Error('Voting session already active');
+    }
+
+    const votingSession = new Vote();
     votingSession.start();
-    this.voteRepository.create(votingSession);
+    await this.voteRepository.create(votingSession);
   }
 
   async stopVotingSession() {
     const activeVotingSession = await this.voteRepository.find();
+    if (!activeVotingSession) {
+      throw new Error('No active voting session');
+    }
     activeVotingSession.stop();
     activeVotingSession.selectWinner();
-    this.voteRepository.update(activeVotingSession);
+    const updatedVotingSession = await this.voteRepository.update(activeVotingSession);
+    return updatedVotingSession;
   }
 
-  async vote(userName: string, monsterId: string) {
+  async vote(user: any, monsterId: string) {
+    const userName = user['username'];
     const activeVotingSession = await this.voteRepository.find();
+    if (!activeVotingSession) {
+      throw new Error('No active voting session');
+    }
     activeVotingSession.vote(userName, monsterId);
-    this.voteRepository.update(activeVotingSession);
+    await this.voteRepository.update(activeVotingSession);
+  }
+
+  async viewVotes() {
+    const activeVotingSession = await this.voteRepository.find();
+    return activeVotingSession;
   }
 }

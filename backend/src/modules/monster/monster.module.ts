@@ -10,5 +10,6 @@ import { MonsterRepository } from './monster.repository';
   controllers: [MonsterController],
   providers: [MonsterRepository, MonsterService],
   imports: [MongooseModule.forFeature([{ name: Monster.name, schema: MonsterSchema }])],
+  exports: [MonsterService, MonsterRepository],
 })
 export class MonsterModule {}
